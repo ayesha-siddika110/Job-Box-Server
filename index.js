@@ -48,9 +48,27 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/jobapply',async(req,res)=>{
-            const cursor = req.body
-            const result = await jobsApplyCollections.find(cursor).toArray()
+        // app.get('/jobapply',async(req,res)=>{
+        //     const cursor = req.body
+        //     const result = await jobsApplyCollections.find(cursor).toArray()
+        //     res.send(result)
+        // })
+        // email diye data get
+
+        app.get('/jobapply', async(req,res)=>{
+            const email = req.query.email;
+            const query = {applicant_email : email}
+            const result = await jobsApplyCollections.find(query).toArray()
+
+            for(const application of result){
+                const query1 = {_id : new ObjectId(application.job_id)}
+                const job = await jobsCollections.findOne(query1)
+
+                if(job){
+                    application.title = job.title;
+                    application.company = job.company;
+                }
+            }
             res.send(result)
         })
 
