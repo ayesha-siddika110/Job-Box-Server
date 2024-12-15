@@ -28,6 +28,7 @@ async function run() {
 
         const database = client.db("Job-BoxDB")
         const jobsCollections = database.collection("jobboxDB")
+        const jobsApplyCollections = client.db("Job-BoxDB").collection("applyjob")
 
         app.get('/jobs', async(req,res)=>{
             const cursor = jobsCollections.find();
@@ -44,6 +45,18 @@ async function run() {
         app.post('/jobs', async(req,res)=>{
             const newJob = req.body;
             const result = await jobsCollections.insertOne(newJob)
+            res.send(result)
+        })
+
+        app.get('/jobapply',async(req,res)=>{
+            const cursor = req.body
+            const result = await jobsApplyCollections.find(cursor).toArray()
+            res.send(result)
+        })
+
+        app.post('/jobapply', async(req,res)=>{
+            const applyNew = req.body;
+            const result = await jobsApplyCollections.insertOne(applyNew)
             res.send(result)
         })
 
