@@ -31,7 +31,12 @@ async function run() {
         const jobsApplyCollections = client.db("Job-BoxDB").collection("applyjob")
 
         app.get('/jobs', async(req,res)=>{
-            const cursor = jobsCollections.find();
+            const email = req.query.email;
+            let query = {};
+            if(email){
+                query = {hr_email: email}
+            }
+            const cursor = jobsCollections.find(query);
             const result = await cursor.toArray();
             res.send(result)
         })
@@ -67,14 +72,34 @@ async function run() {
                 if(job){
                     application.title = job.title;
                     application.company = job.company;
+                    application.location = job.location
                 }
             }
+            res.send(result)
+        })
+        app.get('/jobapply/jobs/:job_id',async(req,res)=>{
+            const jobId = req.params.job_id
+            const query = {job_id: jobId}
+            const result = await jobsApplyCollections.find(query).toArray()
             res.send(result)
         })
 
         app.post('/jobapply', async(req,res)=>{
             const applyNew = req.body;
             const result = await jobsApplyCollections.insertOne(applyNew)
+            res.send(result)
+        })
+
+        app.patch('/jobapply/:id',async(req,res)=>{
+            const id = req.params.id;
+            const data = req.body;
+            const filter = {_id: new ObjectId(id)}
+            const UpdateStatus ={
+                $set :{
+                    status: data.status
+                }
+            }
+            const result = await jobsApplyCollections.updateOne(filter, UpdateStatus)
             res.send(result)
         })
 
